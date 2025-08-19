@@ -23,9 +23,9 @@ export class GildedRose {
   updateQuality() {
     for (const item of this.items) {
       if (!this.isSulfuras(item)) {
-
+        const qualityDown = this.isConjuredSolo(item) ? 2 : 1;
         if (!this.isAgedBrie(item) && !this.isBackstage(item)) {
-          this.downQuality(item);
+          this.downQuality(item, qualityDown);
         } else {
           this.upQuality(item);
           if (this.isBackstage(item)) {
@@ -37,7 +37,7 @@ export class GildedRose {
         if (item.sellIn < 0) {
           if (!this.isAgedBrie(item)) {
             if (!this.isBackstage(item)) {
-              this.downQuality(item);
+              this.downQuality(item, qualityDown);
             } else {
               item.quality = 0; 
             }
@@ -47,7 +47,6 @@ export class GildedRose {
         }
       }
     }
-
     return this.items;
   }
 
@@ -100,4 +99,5 @@ export class GildedRose {
   - Petite incomphréension sur un item conjured, c'est,  un item avec le nom == "Conjured" / un nom qui commence par conjured 
 / un autre item comme aged brie peut-il être "conjured aged brie" ?  par simplicité je vais partir sur le nom ==="Conjured"
   - Trop de fois un -1 / +1 et de vérification de qualité a 50 ou 0
+  - Prendre 10-20mins pour regarder un design pattern qui peu fonctionner
 */
