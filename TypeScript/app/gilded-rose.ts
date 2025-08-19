@@ -23,40 +23,41 @@ export class GildedRose {
   updateQuality() {
     for (const item of this.items) {
       if (!this.isSulfuras(item)) {
+        
         if (!this.isAgedBrie(item) && !this.isBackstage(item)) {
           if (item.quality > 0) {
-              item.quality = item.quality - 1
+              this.downQuality(item);
           }
         } else {
           if (item.quality < 50) {
-            item.quality = item.quality + 1
+            this.upQuality(item);
             if (this.isBackstage(item)) {
               if (item.sellIn < 11) {
                 if (item.quality < 50) {
-                  item.quality = item.quality + 1
+                  this.upQuality(item);
                 }
               }
               if (item.sellIn < 6) {
                 if (item.quality < 50) {
-                  item.quality = item.quality + 1
+                  this.upQuality(item);
                 }
               }
             }
           }
         }
-          item.sellIn = item.sellIn - 1;
+        item.sellIn--;
         if (item.sellIn < 0) {
           if (!this.isAgedBrie(item)) {
             if (!this.isBackstage(item)) {
               if (item.quality > 0) {
-                  item.quality = item.quality - 1
+                  this.downQuality(item);
               }
             } else {
               item.quality = 0
             }
           } else {
             if (item.quality < 50) {
-              item.quality = item.quality + 1
+              this.upQuality(item);
             }
           }
         }
@@ -86,10 +87,15 @@ export class GildedRose {
     return item.name === NAMES.CONJURED;
   }
 
-  //Bolean True si l'item commence par le mot "Conjured"
-  private startWithConjured(item: Item): boolean {
-    return /^Conjured\b/i.test(item.name);
+  private upQuality(item: Item, up = 1): void {
+    item.quality = item.quality + up;
   }
+
+  private downQuality(item: Item, down = 1): void {
+    item.quality = item.quality - down;
+  }
+
+  
 }
 
 
@@ -101,6 +107,6 @@ export class GildedRose {
   - De multiple fois la même String, smell sonar
   - Il y a 2 fonctionnement métier : Calcul SellIn et Calcul Quality
   - Petite incomphréension sur un item conjured, c'est,  un item avec le nom == "Conjured" / un nom qui commence par conjured 
-/ un autre item comme aged brie peut-il être "conjured aged brie" ? 
-  -
+/ un autre item comme aged brie peut-il être "conjured aged brie" ?  par simplicité je vais partir sur le nom ==="Conjured"
+  - Trop de fois un -1 / +1 et de vérification de qualité a 50 ou 0
 */
