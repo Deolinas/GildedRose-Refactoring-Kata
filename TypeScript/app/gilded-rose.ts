@@ -100,4 +100,123 @@ export class GildedRose {
 / un autre item comme aged brie peut-il être "conjured aged brie" ?  par simplicité je vais partir sur le nom ==="Conjured"
   - Trop de fois un -1 / +1 et de vérification de qualité a 50 ou 0
   - Prendre 10-20mins pour regarder un design pattern qui peu fonctionner
+  - peut-être qu'une gestion item par item serait plus comphréensible 
+    -if (cas brie) 
+    - continue
+    -if (cas backstage) 
+    - continue
+    -if (cas autre) 
+    - continue
+  - Pour les pattern il y a : Chain of Responsibility ? / Strategy ? / Template Method ? 
+  - Trop long à implémenter, je ne les connais pas bien. 
+  - Passage dans une IA pour voir ce qu'il me propose comme amélioration, il semble partir sur un strategy pattern :
+
+  // src/constants.ts
+export const NAMES = {
+AGED_BRIE: "Aged Brie",
+BACKSTAGE: "Backstage passes to a TAFKAL80ETC concert",
+SULFURAS: "Sulfuras, Hand of Ragnaros",
+CONJURED: "Conjured",
+} as const;
+
+
+export const MAX_QUALITY = 50;
+export const MIN_QUALITY = 0;
+
+
+export const clampQuality = (q: number): number =>
+Math.max(MIN_QUALITY, Math.min(MAX_QUALITY, q));
+
+
+
+
+// src/Item.ts
+export class Item {
+constructor(
+public name: string,
+public sellIn: number,
+public quality: number,
+) {}
+}
+
+
+
+
+// src/predicates.ts
+import { Item } from "./Item";
+import { NAMES } from "./constants";
+
+
+export const isAgedBrie = (item: Item) => item.name === NAMES.AGED_BRIE;
+export const isBackstage = (item: Item) => item.name === NAMES.BACKSTAGE;
+export const isSulfuras = (item: Item) => item.name === NAMES.SULFURAS;
+
+
+// Accepte "Conjured" strict ET les variantes du kata (ex: "Conjured Mana Cake")
+export const isConjured = (item: Item) =>
+item.name === NAMES.CONJURED || item.name.toLowerCase().startsWith("conjured");
+
+
+
+
+// src/updaters.ts
+import { Item } from "./Item";
+import { clampQuality } from "./constants";
+import { isAgedBrie, isBackstage, isSulfuras, isConjured } from "./predicates";
+
+
+export interface Updater {
+update(item: Item): Item;
+}
+
+
+class LegendaryUpdater implements Updater {
+update(item: Item): Item {
+// Sulfuras: rien ne change
+return new Item(item.name, item.sellIn, item.quality);
+}
+}
+
+
+class BrieUpdater implements Updater {
+update(item: Item): Item {
+let { sellIn, quality } = item;
+
+
+// phase avant sellIn-- (mêmes règles que ton implémentation)
+quality += 1;
+
+
+// décrément du sellIn
+sellIn -= 1;
+
+
+// après expiration
+if (sellIn < 0) {
+quality += 1;
+}
+
+
+return new Item(item.name, sellIn, clampQuality(quality));
+}
+}
+
+
+class BackstageUpdater implements Updater {
+update(item: Item): Item {
+let { sellIn, quality } = item;
+
+
+// phase avant sellIn--
+quality += 1; // +1 toujours
+if (sellIn < 11) quality += 1; // +1 si <= 10 jours
+if (sellIn < 6) quality += 1; // +1 si <= 5 jours
+
+
+// décrément du sellIn
+sellIn -= 1;
+
+
+// après expiration : qualité tombe à 0
+}
 */
