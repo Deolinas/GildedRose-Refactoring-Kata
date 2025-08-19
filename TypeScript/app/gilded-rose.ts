@@ -23,42 +23,26 @@ export class GildedRose {
   updateQuality() {
     for (const item of this.items) {
       if (!this.isSulfuras(item)) {
-        
+
         if (!this.isAgedBrie(item) && !this.isBackstage(item)) {
-          if (item.quality > 0) {
-              this.downQuality(item);
-          }
+          this.downQuality(item);
         } else {
-          if (item.quality < 50) {
-            this.upQuality(item);
-            if (this.isBackstage(item)) {
-              if (item.sellIn < 11) {
-                if (item.quality < 50) {
-                  this.upQuality(item);
-                }
-              }
-              if (item.sellIn < 6) {
-                if (item.quality < 50) {
-                  this.upQuality(item);
-                }
-              }
-            }
+          this.upQuality(item);
+          if (this.isBackstage(item)) {
+            if (item.sellIn < 11) this.upQuality(item);
+            if (item.sellIn < 6)  this.upQuality(item);
           }
         }
         item.sellIn--;
         if (item.sellIn < 0) {
           if (!this.isAgedBrie(item)) {
             if (!this.isBackstage(item)) {
-              if (item.quality > 0) {
-                  this.downQuality(item);
-              }
+              this.downQuality(item);
             } else {
-              item.quality = 0
+              item.quality = 0; 
             }
           } else {
-            if (item.quality < 50) {
-              this.upQuality(item);
-            }
+            this.upQuality(item);
           }
         }
       }
@@ -66,6 +50,7 @@ export class GildedRose {
 
     return this.items;
   }
+
 
   //Bolean True si l'item est Aged Brie
   private isAgedBrie(item: Item): boolean {
@@ -87,12 +72,18 @@ export class GildedRose {
     return item.name === NAMES.CONJURED;
   }
 
+  // Monte la qualité de 1
   private upQuality(item: Item, up = 1): void {
-    item.quality = item.quality + up;
+    item.quality = this.checkQuality(item.quality + up);
+  }
+  // Diminue la qualité de 1
+  private downQuality(item: Item, down = 1): void {
+    item.quality = this.checkQuality(item.quality - down);
   }
 
-  private downQuality(item: Item, down = 1): void {
-    item.quality = item.quality - down;
+  // Vérifie que la qualité est bien entre le MIN et le MAX
+  private checkQuality(q: number): number {
+    return Math.max(MIN_QUALITY, Math.min(MAX_QUALITY, q));
   }
 
   
